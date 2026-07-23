@@ -128,5 +128,6 @@ python -m streamlit run frontend.py
 ├── backend.py            # LangGraph nodes, schemas, and compiled graph
 ├── frontend.py            # Streamlit interface
 ├── requirements.txt
+├── schema.py              # All the schmas for the nodes 
 └── generated_projects/    # Output directory (created at runtime)
 ```
