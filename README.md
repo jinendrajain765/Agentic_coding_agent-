@@ -4,7 +4,7 @@
  
 A LangGraph-based multi-agent system that converts a natural language request into a complete, working software project — planning the architecture, writing each file, executing it to verify correctness, and automatically self-correcting on failure.
  
-**Live demo:** Streamlit frontend with human-in-the-loop plan approval and downloadable project output.
+Streamlit frontend with human-in-the-loop plan approval and downloadable project output.
  
 ---
  
