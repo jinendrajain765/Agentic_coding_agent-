@@ -6,9 +6,7 @@ from langgraph.types import Command
 from schemas import *
 from langchain_groq import ChatGroq
 from dotenv import load_dotenv
-import subprocess # for executor
-#from langgraph.store.memory import InMemoryStore
-#from langgraph.checkpoint.memory import MemorySaver
+import subprocess # ro execute the written file 
 import sqlite3
 from langgraph.checkpoint.sqlite import SqliteSaver
 
@@ -24,15 +22,16 @@ llm2=ChatGroq(model="qwen/qwen3.6-27b",model_kwargs={"reasoning_effort":'none'})
 
 
 class state(TypedDict):
-        user_request: str                              # original user prompt
-        plan: ProjectPlan                               # Planner node output
-        architecture: ArchitectOutput                   # Architect node output
-        project_path: str                               # folder path where files get written
+        user_request: str                              
+        plan: ProjectPlan                               
+        architecture: ArchitectOutput                   
+        project_path: str                               
     
-        current_file_index: int                         # which file in build_order we're on
-        generated_files: dict[str, str]                 # filename -> generated code (text)
-        execution_results: dict[str, ExecutionResult]    # filename -> execution outcome
-        retry_counts: dict[str, int]                     # filename -> number of retries so far
+        current_file_index: int #in which file we are on
+        generated_files: dict[str, str]                 
+        execution_results: dict[str, ExecutionResult]    
+        retry_counts: dict[str, int]    
+        plan_approved:bool                
     
 
 
@@ -60,11 +59,13 @@ Do not invent features the user did not request.
 def Planner(state:state) -> dict :
         plannerr_llm = llm.with_structured_output(ProjectPlan) 
 
-        result=plannerr_llm.invoke([SystemMessage(content=PLANNER_SYSTEM_PROMPT),HumanMessage(content=f"user_request : {state['user_request']}")])
+        prior_notes = ""
+        if state.get('plan'):
+            prior_notes = f"\nPrevious plan constraints/edits to incorporate: {state['plan'].constraints}"
+
+        result=plannerr_llm.invoke([SystemMessage(content=PLANNER_SYSTEM_PROMPT),HumanMessage(content=f"user_request : {state['user_request']}{prior_notes}")])
         
         return {'plan':result}
-
-
 
 
 from langgraph.types import interrupt
@@ -81,10 +82,13 @@ def HITL_ApprovePlan(state: state) -> dict: # human in the loop after we get our
 
     # user_decision comes back from frontend when resumed
     if user_decision.get("approved"):
-        return {}  # no state change, just continue
+        return {'plan_approved':True}  # no state change, just continue
     else:
         # user gave edits as plain text -> feed back into plan as a note
-        return {"plan": plan.model_copy(update={"constraints": plan.constraints + [user_decision.get("edits", "")]})}
+        return {
+             "plan":plan.model_copy(update={"constraints":plan.constraints + [user_decision.get("edits","")]}),
+             "plan_approved":False
+        }
 
 
 
@@ -174,6 +178,7 @@ Dependency code available:
 
 
 import subprocess   
+# see a small problem here see if the code is not demanding any user input then it might execute the executor do execute but if it demands the input from the input 
 
 def Executor(state: state) -> dict:# it will run the generated file or code 
     current_file = state['architecture'].files[state['current_file_index']] # the current file stored in the state 
@@ -226,6 +231,11 @@ def route_after_execution(state: state) -> str: # the router function from here 
         return "fixer"
     else:
         return "give_up"
+
+def route_after_hitl(state: state) -> str:#router func
+    if state.get('plan_approved'):
+        return "approved"
+    return "rejected"
     
 
 def move_to_next_file(state: state) -> dict: # as soon as one file is generated and if if it is error free and the executor ran it then we move to the next file
@@ -286,8 +296,14 @@ graph.add_node("move_to_next_file",move_to_next_file)
 
 graph.add_edge(START, "planner")
 graph.add_edge("planner", "hitl")
-graph.add_edge("hitl", "architect")
-
+graph.add_conditional_edges(
+    "hitl",
+    route_after_hitl,
+    {
+        "approved": "architect",
+        "rejected": "planner"
+    }
+)
 graph.add_edge("architect", "coder")
 graph.add_edge("coder", "executor")
 

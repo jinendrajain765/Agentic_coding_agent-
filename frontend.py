@@ -159,11 +159,12 @@ elif st.session_state.stage == "awaiting_approval":
                     st.error(f"Build failed: {e}")
             st.rerun()
     with col2:
-        if st.button("✕] Start Over"):
-            st.session_state.stage = "input"
-            st.session_state.plan_preview = None
+        edit_text = st.text_input("Or describe changes to the plan", key="edit_text")
+        if st.button("✕ Reject & Revise"):
+            with st.spinner("Planner is revising the plan..."):
+                result = app.invoke(Command(resume={"approved": False, "edits": edit_text}), config=config)
+            st.session_state.plan_preview = result.get("plan")
             st.rerun()
-
 #results
 elif st.session_state.stage == "done":
     st.markdown('<div class="forge-label">Build Complete</div>', unsafe_allow_html=True)
