@@ -95,7 +95,6 @@ Eight nodes, each with a single responsibility: **Planner** (scope), **HITL** (h
 |---|---|---|
 | Orchestration | LangGraph (`StateGraph`) | Branching and looping (retry logic, multi-file progression, plan revision) required a graph, not a linear chain |
 | LLMs | Groq — `openai/gpt-oss-120b` (Planner, Architect) + `qwen/qwen3.6-27b` (Coder, Fixer) | Reasoning-heavy nodes use the larger model; high-volume, per-file generation nodes use a faster model to manage rate limits |
-| Structured output | Groq native schema-enforced output with Pydantic | Guarantees valid `ProjectPlan` / `ArchitectOutput`; code generation itself is left as raw text, since source code is not structured data |
 | Human-in-the-loop | LangGraph `interrupt()` | Prevents wasted generation work on an incorrect plan; supports both approval and a full revise-and-re-plan cycle |
 | Checkpointing | SQLite (`SqliteSaver`) | Persists paused graph state so an approval interrupt can be resumed |
 | Verification | Python `subprocess` | Executes generated code as an isolated process — the only reliable way to confirm it runs |
