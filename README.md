@@ -130,7 +130,6 @@ Finding 2: When asked to use a specific library (LangGraph) inside the generated
 
 - **Interactive programs are generated but not fully verified.** The Executor syntax-checks the entire file, and executes and confirms all logic up to the first `input()` call — but code after that point cannot run, since the Executor supplies no response to wait on, so its correctness is untested. The same applies to files requiring command-line arguments.
 - **Generated pipelines requiring external API calls cannot be meaningfully executed by the Executor as-is** — a generated project that itself calls an LLM API would need real credentials, longer timeouts, and would incur real API cost simply to verify, which the current Executor does not account for.
-- **`build_order` is not yet explicitly enforced** in the execution loop, which currently iterates `architecture.files` in list order; for most requests these coincide, but this is a known gap.
 - **No guardrails layer** currently screens generated code for unsafe operations before execution.
 - **Single-session, local execution.** Generated files are written to local disk ; the system is architected as a personal coding agent with a deployed interface, not a concurrent multi-tenant production service.
 
@@ -138,7 +137,6 @@ Finding 2: When asked to use a specific library (LangGraph) inside the generated
 
 ## Possible Future Improvements
 - A more capable execution sandbox supporting piped input
-- Explicit enforcement of `build_order` in the execution loop
 - A lightweight guardrails check before Coder writes generated code to disk
 
 
