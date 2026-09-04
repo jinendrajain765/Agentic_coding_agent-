@@ -2,7 +2,7 @@
 
 **Give it a sentence. Get back a working, tested, downloadable project.**
 
-**[Live demo →](https://your-render-url.onrender.com)** · Built with LangGraph + Groq · 8-node agentic pipeline · Deployed on Render
+**[Live demo →](https://agentic-coding-agent.onrender.com)** · Built with LangGraph + Groq · 8-node agentic pipeline · Deployed on Render
 
 ---
 
@@ -122,7 +122,7 @@ The system was tested end-to-end through the frontend using eight varied natural
 
 Findings 
 
-Finding 1: Files with no user interaction always passed on the first try. Files needing input() were correctly written but couldn't be confirmed working — the Executor still checks the file's full syntax, even with input() in it, but can't run the code past that line since nobody's there to type a response.
+Finding 1: **Files with no user interaction always passed on the first try. Files needing input() were correctly written but couldn't be confirmed working — the Executor still checks the file's full syntax, even with input() in it, but can't run the code past that line since nobody's there to type a response.**
 
 Finding 2: When asked to use a specific library (LangGraph) inside the generated code, the Coder agent sometimes ignored it and wrote simpler code instead — and since that simpler code still ran fine, the system had no way to catch that the actual requirement wasn't met.
 ---
@@ -130,21 +130,18 @@ Finding 2: When asked to use a specific library (LangGraph) inside the generated
 ## Limitations
 
 - **Interactive programs are generated but not fully verified.** The Executor syntax-checks the entire file, and executes and confirms all logic up to the first `input()` call — but code after that point cannot run, since the Executor supplies no response to wait on, so its correctness is untested. The same applies to files requiring command-line arguments.
-- **Verification checks execution, not architectural correctness.** The Executor confirms a file runs without crashing but does not confirm it satisfies deeper requirements from the plan — for example, whether a specified library or framework was genuinely used versus substituted with a simpler equivalent. A static check for required imports would be a natural next step.
 - **Generated pipelines requiring external API calls cannot be meaningfully executed by the Executor as-is** — a generated project that itself calls an LLM API would need real credentials, longer timeouts, and would incur real API cost simply to verify, which the current Executor does not account for.
 - **`build_order` is not yet explicitly enforced** in the execution loop, which currently iterates `architecture.files` in list order; for most requests these coincide, but this is a known gap.
 - **No guardrails layer** currently screens generated code for unsafe operations before execution.
-- **Single-session, local execution.** Generated files are written to local disk per session; the system is architected as a personal coding agent with a deployed interface, not a concurrent multi-tenant production service.
+- **Single-session, local execution.** Generated files are written to local disk ; the system is architected as a personal coding agent with a deployed interface, not a concurrent multi-tenant production service.
 
 ---
 
 ## Possible Future Improvements
-
-- Static checks for required library usage, to catch cases like Finding 2 automatically
-- A more capable execution sandbox supporting piped input, CLI arguments, and credentialed API calls for deeper verification
+- A more capable execution sandbox supporting piped input
 - Explicit enforcement of `build_order` in the execution loop
 - A lightweight guardrails check before Coder writes generated code to disk
-- Support for editing a previously generated project, reusing the existing Executor/Fixer verification loop
+
 
 ---
 
@@ -173,5 +170,5 @@ python -m streamlit run frontend.py
 ├── frontend.py            # Streamlit interface
 ├── schemas.py             # Pydantic schemas (ProjectPlan, ArchitectOutput, FileTask, ExecutionResult)
 ├── requirements.txt
-└── generated_projects/    # Output directory (created at runtime)
+└── generated_projects/   # Output directory (created at runtime)
 ```
