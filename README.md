@@ -39,7 +39,7 @@ It's deployed as a web application so anyone can use it end-to-end, while remain
 ## Architecture
 
 ```
-                         START
+                                                START
                            │
                     ┌──────▼──────┐
                     │   Planner   │  Scopes the request into a
@@ -47,42 +47,49 @@ It's deployed as a web application so anyone can use it end-to-end, while remain
                     └──────┬──────┘
                            │
                     ┌──────▼──────┐
-              ┌────▶│    HITL     │  Pauses for human approval
-              │     │             │  of the plan
-              │     └──────┬──────┘
-              │             │
-              │      approved│rejected
-              │             │    │
-              │      ┌──────▼──┐ │
-              │      │Architect│ └──────────┐
-              │      └────┬────┘            │
-              │           │           (re-run Planner
-              └───────────┘            with the requested
-                                        changes, then
-                                        pause at HITL again)
-                  ┌────────▼────────┐
-            ┌────▶│      Coder      │  Writes one file, using
-            │     │                 │  already-built dependencies
-            │     └────────┬────────┘  as context
-            │              │
-            │     ┌────────▼────────┐
-            │     │    Executor     │  Runs the file as a real
-            │     │                 │  subprocess to verify it works
-            │     └────────┬────────┘
-            │        success│fail (retries remaining)
-            │       +more   │
-            │       files   │
-            │         │     │
-            │  ┌──────▼──┐  │  ┌──────────┐
-            └──┤move_to_ │  │  │ Packager │  Zips the finished
-               │next_file│  │  │          │  project for download
-               └─────────┘  │  └──────────┘
-                      ┌──────▼──────┐
-                      │    Fixer    │  Regenerates the file using
-                      │             │  the captured error message
-                      └──────┬──────┘
-                             │
-                             └──────────▶ back to Executor
+                    │    HITL     │  Pauses for human approval
+                    │             │  of the plan
+                    └──────┬──────┘
+                           │
+                    approved│rejected
+                           │    │
+                    ┌──────▼──┐ │
+                    │Architect│ │
+                    └────┬────┘ │
+                         │      │
+                         │      └──────────┐
+                         │                 │
+                         │          (re-run Planner
+                         │           with the requested
+                         │           changes, then
+                         │           pause at HITL again)
+                         │                 │
+                         │                 │
+                         │                 └──────────► Planner
+                         │
+                  ┌──────▼────────┐
+            ┌────▶│     Coder     │  Writes one file, using
+            │     │               │  already-built dependencies
+            │     └───────┬───────┘  as context
+            │             │
+            │      ┌──────▼───────┐
+            │      │   Executor   │  Runs the file as a real
+            │      │              │  subprocess to verify it works
+            │      └──────┬───────┘
+            │       success│fail (retries remaining)
+            │      +more   │
+            │      files   │
+            │        │     │
+            │  ┌─────▼────┐│  ┌──────────┐
+            └──┤move_to_  ││  │ Packager │  Zips the finished
+               │next_file ││  │          │  │ project for download
+               └──────────┘│  └──────────┘
+                      ┌────▼──────┐
+                      │   Fixer   │  Regenerates the file using
+                      │            │  the captured error message
+                      └────┬───────┘
+                           │
+                           └──────────► back to Executor
 ```
 
 Eight nodes, each with a single responsibility: **Planner** (scope), **HITL** (human checkpoint, with revise-and-re-plan on rejection), **Architect** (design), **Coder** (create), **Executor** (verify), **Fixer** (repair), **move_to_next_file** (advance the build pointer), **Packager** (deliver).
