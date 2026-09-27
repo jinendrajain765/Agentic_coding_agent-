@@ -72,7 +72,7 @@ from langgraph.types import interrupt
 
 #In Python, model_dump() is a built-in method in Pydantic V2 used to convert a data model into a standard Python dictionary (dict)
 
-def HITL_ApprovePlan(state: state) -> dict: # human in the loop after we get our plan
+def HITL_ApprovePlan(state: state) -> dict: 
     plan = state['plan']
 
     user_decision = interrupt({
@@ -82,7 +82,7 @@ def HITL_ApprovePlan(state: state) -> dict: # human in the loop after we get our
 
     # user_decision comes back from frontend when resumed
     if user_decision.get("approved"):
-        return {'plan_approved':True}  # no state change, just continue
+        return {'plan_approved':True}  
     else:
         # user gave edits as plain text -> feed back into plan as a note
         return {
@@ -158,7 +158,7 @@ Dependency code available:
 """)
     ]
 
-    result = llm2.invoke(messages)   # plain invoke, no schema -- raw text  
+    result = llm2.invoke(messages)   
     code = result.content
 
     file_path = f"{state['project_path']}/{current_file.filename}" # so the generated file or code it is stored in the current file and this is the path 
@@ -172,7 +172,7 @@ Dependency code available:
     with open(file_path, 'w',encoding='utf-8')as f: # writing the code gen by the codeer 
         f.write(code) 
 
-    updated_files = {**state['generated_files'], current_file.filename: code} # updating the current file with the written code
+    updated_files = {**state['generated_files'], current_file.filename: code} 
     return {"generated_files": updated_files} 
         
 
@@ -223,7 +223,7 @@ def route_after_execution(state: state) -> str: # the router function from here 
     result = state['execution_results'][current_file.filename] # we are passing the current created file to the executor node to execute it that node will say if the code is perfect or any error came if any error comes it will return false else true if there is no error 
     retries_done = state['retry_counts'].get(current_file.filename, 0) # max retries is 3 if we never set the max retries the agent may be generated the code infinitely
 
-    if result.success: # router type decision
+    if result.success: 
         if state['current_file_index'] + 1 < len(state['architecture'].files): 
             return "move_to_next_file"
         return "done"  # all files finished
@@ -281,7 +281,7 @@ def Packager(state: state) -> dict: # for combining the files and making zip
     return {}
 
 
-os.makedirs("./generated_projects/test1", exist_ok=True) # the path of the folder here all this generated file will be saved according to user and no of files 
+os.makedirs("./generated_projects/test1", exist_ok=True) # the path of the folder here all this generated file will be saved 
 
 graph = StateGraph(state)
 
@@ -324,7 +324,7 @@ graph.add_edge("packager", END)
 
 #what is check same thead exactly mean
 
-#SQLite has a safety rule by default: a database connection can only be used by the same thread (the same "worker") that created it. If a different thread tries to use that same connection, SQLite normally raises an error — because SQLite wasn't originally designed to safely handle multiple threads touching the same connection at once (risk of data corruption if two threads write at the same time).
+
 #check_same_thread=False tells SQLite: "turn off that safety check, allow other threads to use this connection too."
 checkpoint=SqliteSaver(conn=sqlite3.connect(database="coder_db",check_same_thread=False))
 app = graph.compile(checkpointer=checkpoint)
