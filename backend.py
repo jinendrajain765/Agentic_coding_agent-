@@ -17,8 +17,7 @@ load_dotenv()
 
 llm=ChatGroq(model='openai/gpt-oss-120b')
 # llm2=ChatGroq(model="qwen/qwen3.8-27b",model_kwargs={"reasoning_effort":'none'}) # because the model is a resoning model it writes between <think> 'response' <think> so when in code u invoke it in code the model will also write thi <think> tag a d it is a string with no variable defined for it 
-llm2=Chatgroq(model="openai/gpt-oss-20b") # had to switch it because qwen model was deprecated 
-#Nodes
+llm2=ChatGroq(model="openai/gpt-oss-20b") # had to switch it because qwen model was deprecated 
 
 
 class state(TypedDict):
