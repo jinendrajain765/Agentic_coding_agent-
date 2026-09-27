@@ -2,7 +2,7 @@
 
 **Give it a sentence. Get back a working, tested, downloadable project.**
 
-**[Live demo →](https://agentic-coding-agent.onrender.com)** · Built with LangGraph + Groq · 8-node agentic pipeline · Deployed on Render
+**[Live demo →](https://agentic-coding-agent.onrender.com)** 
 
 ---
 
