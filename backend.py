@@ -153,14 +153,14 @@ def Coder(state: state) -> dict:
     messages = [
         SystemMessage(content=CODER_SYSTEM_PROMPT),
         HumanMessage(content=f"""
-File to write: {current_file.filename}
-Purpose: {current_file.purpose}
-Required functions: {current_file.key_functions}
+        File to write: {current_file.filename}
+        Purpose: {current_file.purpose}
+        Required functions: {current_file.key_functions}
 
-Dependency code available:
-{dependency_code or 'None'}
-""")
-    ]
+        Dependency code available:
+        {dependency_code or 'None'}
+        """)
+        ]
 
     result = llm2.invoke(messages)   # plain invoke, no schema -- raw text  
     code = result.content
