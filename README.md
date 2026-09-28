@@ -17,7 +17,7 @@ Forge closes that gap by treating code generation as a sequence of accountable a
 1. **Plans** the project and asks for explicit human approval before writing a single line — and if the plan is rejected with feedback, it genuinely re-plans rather than patching the rejection onto the old plan
 2. **Designs** the file structure and cross-file dependencies up front, so files that import from each other actually stay consistent
 3. **Writes** real files to a real folder on disk — not a code block in a chat window
-4. **Executes** every file it writes, in an isolated process, to check whether it actually runs
+4. **Executes**  file it writes, in an isolated process, to check whether it actually runs
 5. **Diagnoses and repairs** its own failures, feeding the real error message back into a correction pass, up to three attempts per file, before giving up honestly
 6. **Packages** the finished, verified project into a downloadable archive
 
@@ -32,7 +32,7 @@ It's deployed as a web application so anyone can use it end-to-end, while remain
 - Multi-file projects with consistent cross-file dependencies (shared function names, correct imports)
 - Persistent, resumable state via SQLite checkpointing
 - Downloadable output as a ready-to-run zip archive
-- Deployed and publicly accessible, not just a local script
+
 
 ---
 
@@ -140,11 +140,6 @@ Finding 2: When asked to use a specific library (LangGraph) inside the generated
 - **No guardrails layer** currently screens generated code for unsafe operations before execution.
 - **Single-session, local execution.** Generated files are written to local disk ; the system is architected as a personal coding agent with a deployed interface, not a concurrent multi-tenant production service.
 
----
-
-## Possible Future Improvements
-- A more capable execution sandbox supporting piped input
-- A lightweight guardrails check before Coder writes generated code to disk
 
 
 ---
