@@ -108,9 +108,9 @@ Your responsibilities:
    any file another file depends on is built BEFORE it.
 4. Keep the file count minimal -- do not split things into unnecessary extra files.
    For a simple app, 2-4 files is often enough.
-5. For any web_app request, ALWAYS separate structure, styling, and interactivity into
-   distinct files: at minimum one HTML file, one CSS file, and one JavaScript file if
-   any client-side interactivity is required. Do not combine these into a single file
+5. For web_app requests, rule 4 does not apply. Always plan separate files: at least
+   one .html file for structure, one .css file for styling, and one .js file for
+   behavior, even for very small pages. Never merge them into one file.
  
 Be precise about function names and dependencies -- this is what keeps the generated
 code consistent when multiple files are written separately.
