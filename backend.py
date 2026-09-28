@@ -182,6 +182,16 @@ def Coder(state: state) -> dict:
 
 import subprocess   
 # see a small problem here see if the code is not demanding any user input then it might execute the executor do execute but if it demands the input from the input 
+def classify_error(stderr: str):
+    if not stderr:
+        return None
+    lines = [l for l in stderr.strip().splitlines() if l.strip()]
+    last = lines[-1] if lines else ""
+    if last.startswith(("SyntaxError", "IndentationError", "TabError")):
+        return "syntax"
+    if last.startswith(("ImportError", "ModuleNotFoundError")):
+        return "import"
+    return "runtime"
 
 def Executor(state: state) -> dict:# it will run the generated file or code 
     current_file = state['architecture'].files[state['current_file_index']] # the current file stored in the state 
@@ -201,7 +211,8 @@ def Executor(state: state) -> dict:# it will run the generated file or code
         result = ExecutionResult(
             filename=current_file.filename,
             success=False,
-            error_message=outcome.stderr
+            error_message=outcome.stderr,
+            error_type=classify_error(outcome.stderr)    
         )
 
     return {"execution_results": {**state['execution_results'], current_file.filename: result}}
